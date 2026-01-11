@@ -31,7 +31,7 @@ namespace QuickGames
             return wordToGuess.Equals(guessedLetters);
         }
 
-        public bool CheckLetter(char letter) //checking if a word contains this letter, could also be solved with LINQ
+        public bool CheckLetter(char letter) //checking if a word contains this letter
 
         {
             if (wordToGuess.Contains(letter))
