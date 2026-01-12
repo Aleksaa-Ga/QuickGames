@@ -18,6 +18,7 @@ namespace QuickGames
         {
             string randomWord = RandomWordSelector();
             word = new HangmanGameWord(randomWord);
+            //Console.WriteLine(randomWord); // for testing purposes
             // word = new HangmanGameWord("teesst"); // for testing purposes
         }
 
@@ -57,18 +58,32 @@ namespace QuickGames
             {
                 Console.WriteLine("An error occurred while reading the file: " + e.Message);
             }
-            return new List<string>(content.Split(';', StringSplitOptions.RemoveEmptyEntries));
+            return content
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(word => word.Trim())
+                .ToList();
         }
         public void StartHangmanGame() // starting the game
         {
-
+            Console.WriteLine(new string('-', 30));
             Console.WriteLine("Welcome to Hangman!\n" +
                 "Your task is to guess the word by entering letters, but be careful!\n" +
                 $"You can only make {maxMistakes} mistakes.");
+            Console.WriteLine(new string('-', 30) + "\n");
 
-            while(mistakes < maxMistakes && !word.IsWordGuessed()) // while mistakes are less than max mistakes and the word is not guessed
+            while (mistakes < maxMistakes && !word.IsWordGuessed()) // while mistakes are less than max mistakes and the word is not guessed
             {
-                char letter = AskForLetter();
+                Console.WriteLine(new string('-', 30));
+                AskForHint();
+                Console.WriteLine(new string('-', 30) + "\n");
+
+                char letter = AskForChar();
+
+                if(letter == '?') // if the user wants a hint
+                {
+                    word.UseHint();
+                    continue;
+                }
 
                 if (word.CheckLetter(letter))
                 {
@@ -81,6 +96,7 @@ namespace QuickGames
                         $"You have {maxMistakes - mistakes} mistakes left.");
                 }
                 Console.WriteLine("Guessed letters: " + word.GetGuessedLetters());
+                Console.WriteLine(new string('*', 30) + "\n");
             }
 
             if(word.IsWordGuessed()) // end of the game, win or lose?
@@ -93,14 +109,15 @@ namespace QuickGames
             }
         }
 
-        char AskForLetter()
+        char AskForChar()
         {
             string input;
 
             do
-            {
-                Console.WriteLine("Please enter a letter:");
+            {   
+                Console.Write("Please enter a letter: ");
                 input = Console.ReadLine();
+
 
                 if (input == null || input.Length != 1)
                 {
@@ -109,6 +126,16 @@ namespace QuickGames
                 }
 
                 char letter = char.ToUpper(input[0]); //assigning a character to a variable
+
+                if(letter == '?' && word.HintsUsed < word.MaxHints)
+                {
+                    return letter; // returning the hint character
+                }
+                else if(letter == '?')
+                {
+                    Console.WriteLine("You have used all your hints!");
+                    continue;
+                }
 
                 if (!char.IsLetter(letter))
                 {
@@ -128,5 +155,19 @@ namespace QuickGames
             } while(true);
         }
 
+        void AskForHint() // asking the user if they want to use a hint
+        {
+            if(word.HintsUsed >= word.MaxHints)
+            {
+                Console.WriteLine("You have used all your hints.");
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Do you want to use a hint? \n" +
+                    "if so, type '?' mark when entering the letter\n" +
+                    $"You have used {word.HintsUsed} out of {word.MaxHints} hints.");
+            }
+        }
     }
 }
