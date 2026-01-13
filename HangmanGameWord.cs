@@ -10,6 +10,10 @@ namespace QuickGames
     {
         private readonly string wordToGuess;
         private string guessedLetters = "";
+        private int hintsUsed = 0;
+        public int HintsUsed { get { return hintsUsed; } }
+        private const int maxHints = 3;
+        public int MaxHints { get { return maxHints; } }
 
         public HangmanGameWord(string wordToGuess)
         {
@@ -32,7 +36,6 @@ namespace QuickGames
         }
 
         public bool CheckLetter(char letter) //checking if a word contains this letter
-
         {
             if (wordToGuess.Contains(letter))
             {
@@ -50,5 +53,43 @@ namespace QuickGames
             }
             return false;
         }
+        public void UseHint() // using a hint to reveal a letter
+        {
+            hintsUsed++;
+            Console.WriteLine("Using a hint will reveal one letter.\n" +
+                $"You have used {hintsUsed} out of {maxHints} hints.");
+            Console.WriteLine(new string('-', 30) + "\n");
+
+            Console.Write("Choose the position of the letter you wish to reveal.\n" +
+                "Enter a number between 1 and " + wordToGuess.Length + ": ");
+            int input = GetIntInput(Console.ReadLine());
+
+            while (input < 1 || input > wordToGuess.Length) // validating input
+            {
+                Console.Write("Invalid position. Please enter a number between 1 and " + wordToGuess.Length + ": ");
+                input = GetIntInput(Console.ReadLine());
+            }
+
+            StringBuilder sb = new StringBuilder(guessedLetters); // revealing the letter at the chosen position
+            sb[input - 1] = wordToGuess[input - 1];
+            guessedLetters = sb.ToString();
+            Console.WriteLine("Guessed letters: " + guessedLetters);
+            Console.WriteLine(new string('*', 30) + "\n");
+
+        }
+
+        int GetIntInput(string number) // validating integer input
+        {
+            int value;
+
+            while(!int.TryParse(number, out value))
+            {
+                Console.Write("Invalid input. Please enter a valid number: ");
+                number = Console.ReadLine();
+            }
+            return value;
+        }
+
+        
     }
 }
